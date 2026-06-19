@@ -28,7 +28,7 @@ https://placement-portal-5swj.onrender.com
 
 ### 🎥 Project Demonstration
 
-*(Add your YouTube demo thumbnail and link here)*
+*Coming Soon...*
 
 ---
 
