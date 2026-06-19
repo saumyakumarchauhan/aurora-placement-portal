@@ -91,6 +91,10 @@ with app.app_context():
         db.session.add(admin_user)
         db.session.commit()
         print("Default admin created.")
+        
+@app.route('/ping')
+def ping():
+    return "OK", 200
 
 # RUN APPLICATION
 if __name__ == "__main__":
