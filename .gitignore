@@ -1,0 +1,17 @@
+# Virtual Environment
+venv/
+env/
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# Database
+instance/
+placement.db
+
+# Secrets
+.env
+
+# Exports
+static/exports/

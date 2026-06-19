@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drive Details | Aurora Placement Portal</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="/static/css/dashboard-theme.css">
+</head>
+<body class="app-shell">
+
+<div id="app">
+    {% raw %}
+    <aside class="app-sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <nav class="sidebar-nav">
+            <a class="sidebar-link" href="/student_dashboard">
+                <i class="fas fa-home"></i><span>Dashboard</span>
+            </a>
+            <a class="sidebar-link" href="/student_profile">
+                <i class="fas fa-user-edit"></i><span>Profile</span>
+            </a>
+            <a class="sidebar-link" href="/student_app_history">
+                <i class="fas fa-history"></i><span>History</span>
+            </a>
+            <a class="sidebar-link active" href="#">
+                <i class="fas fa-briefcase"></i><span>Drive Details</span>
+            </a>
+        </nav>
+        <div class="sidebar-foot">
+            <a href="/login" class="sidebar-link">
+                <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <main class="app-main">
+        
+        <header class="app-topbar">
+            <div>
+                <span class="topbar-eyebrow">Recruitment Opportunity</span>
+                <h1 class="topbar-title">Drive Overview</h1>
+            </div>
+            
+            <div class="d-flex align-items-center gap-4">
+                <a href="/student_dashboard" class="btn-outline-glass">
+                    <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
+                </a>
+                <div class="profile-chip">
+                    <div class="profile-avatar">{{ studentName.charAt(0) }}</div>
+                </div>
+            </div>
+        </header>
+
+        <div v-if="loading" class="loading-glass">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Fetching drive specifications...</p>
+        </div>
+
+        <div v-else class="row">
+            
+            <div class="col-lg-8 mb-4">
+                <div class="glass-card" style="height: 100%;">
+                    <div class="glass-card-body padded">
+                        
+                        <div class="mb-5 border-bottom border-secondary pb-4" style="border-color: var(--glass-border-soft) !important;">
+                            <span class="font-mono text-faint mb-2 d-block" style="font-size: 0.8rem; letter-spacing: 0.1em;">DRIVE #{{ drive.id }}</span>
+                            <h1 class="font-display text-white mb-2" style="font-size: 2.4rem;">{{ drive.jobTitle }}</h1>
+                            <div class="text-aurora fw-bold" style="color: var(--aurora-1); font-size: 1.1rem;">
+                                <i class="fas fa-building me-2"></i> {{ drive.companyName }}
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-3 mb-5">
+                            <div class="stat-card-glass" style="padding: 12px 20px; min-width: 160px; height: auto;">
+                                <i class="fas fa-money-bill-wave text-success mb-2" style="font-size: 1.2rem;"></i>
+                                <div class="font-mono text-faint mb-1" style="font-size: 0.7rem;">PACKAGE</div>
+                                <div class="fw-bold text-white fs-5">₹ {{ drive.salary }}</div>
+                            </div>
+                            
+                            <div class="stat-card-glass" style="padding: 12px 20px; min-width: 160px; height: auto;">
+                                <i class="fas fa-map-marker-alt text-info mb-2" style="font-size: 1.2rem;"></i>
+                                <div class="font-mono text-faint mb-1" style="font-size: 0.7rem;">LOCATION</div>
+                                <div class="fw-bold text-white fs-5">{{ drive.location }}</div>
+                            </div>
+                            
+                            <div class="stat-card-glass" style="padding: 12px 20px; min-width: 160px; height: auto;">
+                                <i class="fas fa-calendar-alt text-danger mb-2" style="font-size: 1.2rem;"></i>
+                                <div class="font-mono text-faint mb-1" style="font-size: 0.7rem;">DEADLINE</div>
+                                <div class="fw-bold text-white fs-5">{{ drive.deadline }}</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="section-title mb-3">Job Description</h5>
+                            <div class="text-dim mb-5" style="line-height: 1.7; font-size: 0.95rem;">
+                                {{ drive.description }}
+                            </div>
+
+                            <h5 class="section-title mb-3">Requirements & Eligibility</h5>
+                            <ul class="text-dim" style="line-height: 1.7; font-size: 0.95rem; padding-left: 20px;">
+                                <li v-for="req in drive.requirements" :key="req" class="mb-2">
+                                    {{ req }}
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-4">
+                <div class="glass-card d-flex flex-column p-5 text-center" style="height: 100%; background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(0,0,0,0.2));">
+                    
+                    <div class="d-flex flex-column align-items-center mb-5">
+                        <div class="profile-avatar mb-4" style="width: 90px; height: 90px; font-size: 2.5rem; box-shadow: 0 0 30px rgba(121,40,202,0.3); border-radius: 20px;">
+                            {{ drive.companyName ? drive.companyName.charAt(0) : 'C' }}
+                        </div>
+                        <h4 class="font-display text-white mb-1">{{ drive.companyName }}</h4>
+                        <a :href="'/student_view_company_details?id=' + drive.companyId" class="text-dim text-decoration-none font-mono" style="font-size: 0.8rem;">
+                            View Company Profile <i class="fas fa-external-link-alt ms-1"></i>
+                        </a>
+                    </div>
+
+                    <div class="mt-auto w-100">
+                        
+                        <transition name="fade-swap">
+                            <div v-if="!applied" class="w-100 text-start">
+                                <div class="mb-4">
+                                    <label class="input-label-glass">Resume Link (G-Drive, GitHub, etc.)</label>
+                                    <input 
+                                        type="url" 
+                                        class="input-glass" 
+                                        v-model="resumeUrl" 
+                                        placeholder="https://..." 
+                                        required 
+                                    />
+                                </div>
+                                <button class="btn-aurora w-100 py-3 mb-3 d-flex justify-content-center align-items-center gap-2" @click="applyForDrive">
+                                    Apply Now <i class="fas fa-paper-plane"></i>
+                                </button>
+                                <a :href="'/student_view_company_details?id=' + drive.companyId" class="btn-outline-glass w-100 d-block text-center text-decoration-none">
+                                    Cancel
+                                </a>
+                            </div>
+                        </transition>
+
+                        <transition name="fade-swap">
+                            <div v-if="applied" class="w-100">
+                                <div class="mb-4 p-4 rounded" style="background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.3);">
+                                    <i class="fas fa-check-circle text-success mb-3" style="font-size: 3rem;"></i>
+                                    <h5 class="text-success font-display fw-bold mb-2">Application Submitted!</h5>
+                                    <p class="text-white-50 font-mono" style="font-size: 0.8rem; line-height: 1.5;">
+                                        Your profile has been forwarded to {{ drive.companyName }}.
+                                    </p>
+                                </div>
+                                <a href="/student_dashboard" class="btn-glass is-success w-100 d-block text-center text-decoration-none py-2">
+                                    Return to Dashboard
+                                </a>
+                            </div>
+                        </transition>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+    {% endraw %}
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="/static/js/student_view_drive_details.js"></script>
+
+</body>
+</html>

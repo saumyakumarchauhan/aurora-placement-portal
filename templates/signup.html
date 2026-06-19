@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Aurora Placement Portal</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="/static/css/dashboard-theme.css">
+
+    <style>
+        .auth-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .auth-card-wide {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0;
+        }
+        .auth-sidebar-glass {
+            background: linear-gradient(180deg, rgba(56, 189, 248, 0.05), rgba(121, 40, 202, 0.15));
+            border-right: 1px solid var(--glass-border);
+            padding: 4rem 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 100%;
+        }
+        /* Custom Role Selector Styling */
+        .role-btn {
+            border: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.03);
+            color: var(--ink-dim);
+            border-radius: var(--radius-md);
+            padding: 15px 10px;
+            cursor: pointer;
+            transition: all 0.3s var(--ease-lux);
+            text-align: center;
+            display: block;
+            width: 100%;
+        }
+        .role-btn:hover {
+            background: rgba(255,255,255,0.06);
+            transform: translateY(-2px);
+        }
+        .role-btn.active {
+            border-color: var(--aurora-1);
+            background: rgba(255,0,128,0.1);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(255,0,128,0.2);
+        }
+        .role-btn i {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+    </style>
+</head>
+<body class="app-shell">
+
+    <div id="signupApp" class="auth-wrapper">
+        {% raw %}
+        <div class="glass-card auth-card-wide">
+            <div class="row g-0 h-100">
+                
+                <div class="col-lg-4 d-none d-lg-block">
+                    <div class="auth-sidebar-glass">
+                        <div class="mb-4" style="width: 80px; height: 80px; border-radius: 20px; background: var(--aurora-gradient); display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 24px -6px var(--aurora-glow);">
+                            <i class="fas fa-network-wired text-white fs-2"></i>
+                        </div>
+                        <h2 class="font-display text-white mb-3">Join the Network</h2>
+                        <p class="text-dim mb-5" style="font-size: 0.95rem; line-height: 1.6;">
+                            Connect with top talent and exclusive opportunities. Create your account to unlock the portal.
+                        </p>
+                        <div class="mt-auto w-100" style="border-top: 1px solid var(--glass-border-soft); padding-top: 2rem;">
+                            <p class="text-faint font-mono mb-3" style="font-size: 0.75rem;">ALREADY REGISTERED?</p>
+                            <a href="/login" class="btn-outline-glass w-100 d-block text-center text-decoration-none">
+                                Sign In Instead
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <div class="p-4 p-md-5">
+                        
+                        <div class="mb-4">
+                            <span class="font-mono text-aurora mb-2 d-block" style="font-size: 0.8rem; letter-spacing: 0.1em; color: var(--aurora-1);">NEW ACCOUNT</span>
+                            <h2 class="font-display text-white mb-1" style="font-size: 2rem;">Register</h2>
+                            <p class="text-dim">Setup your profile to get started.</p>
+                        </div>
+
+                        <transition name="fade-swap">
+                            <div v-if="message" 
+                                 class="mb-4 p-3 rounded d-flex align-items-center" 
+                                 :style="success ? 'background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.3); color: var(--success);' : 'background: rgba(251, 113, 133, 0.1); border: 1px solid rgba(251, 113, 133, 0.3); color: var(--danger);'">
+                                <i :class="success ? 'fas fa-check-circle me-3 fs-5' : 'fas fa-exclamation-circle me-3 fs-5'"></i>
+                                <span>{{ message }}</span>
+                            </div>
+                        </transition>
+
+                        <form @submit.prevent="handleRegister">
+                            
+                            <div class="mb-4">
+                                <label class="input-label-glass">I am registering as a:</label>
+                                <div class="row g-3">
+                                    <div class="col-6">
+                                        <label class="w-100">
+                                            <input type="radio" class="d-none" value="student" v-model="role">
+                                            <div class="role-btn" :class="{ 'active': role === 'student' }">
+                                                <i class="fas fa-user-graduate"></i>
+                                                <span class="fw-bold">Student</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="w-100">
+                                            <input type="radio" class="d-none" value="company" v-model="role">
+                                            <div class="role-btn" :class="{ 'active': role === 'company' }">
+                                                <i class="fas fa-building"></i>
+                                                <span class="fw-bold">Company</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="input-label-glass">{{ role === 'student' ? 'Full Name' : 'Company Name' }}</label>
+                                    <input type="text" class="input-glass" v-model="name" required />
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="input-label-glass">Email Address</label>
+                                    <input type="email" class="input-glass" v-model="email" placeholder="name@example.com" required />
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <label class="input-label-glass">Password</label>
+                                    <input type="password" class="input-glass" v-model="password" placeholder="••••••••" required />
+                                </div>
+                            </div>
+
+                            <transition name="fade-swap">
+                                <div v-if="role === 'student'" class="row border-top pt-4 mt-2" style="border-color: var(--glass-border-soft) !important;">
+                                    <div class="col-md-12 mb-3">
+                                        <label class="input-label-glass">Department</label>
+                                        <input type="text" class="input-glass" v-model="department" placeholder="e.g. Computer Science" />
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="input-label-glass">Current CGPA</label>
+                                        <input type="number" step="0.01" class="input-glass" v-model="cgpa" placeholder="e.g. 8.5" />
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="input-label-glass">Graduation Year</label>
+                                        <input type="number" class="input-glass" v-model="year_of_study" placeholder="e.g. 2026" />
+                                    </div>
+                                </div>
+                            </transition>
+
+                            <transition name="fade-swap">
+                                <div v-if="role === 'company'" class="row border-top pt-4 mt-2" style="border-color: var(--glass-border-soft) !important;">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="input-label-glass">HR Contact Person</label>
+                                        <input type="text" class="input-glass" v-model="hr_contact" placeholder="Name of HR" />
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="input-label-glass">Website URL</label>
+                                        <input type="text" class="input-glass" v-model="website" placeholder="https://company.com" />
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <label class="input-label-glass">Company Description</label>
+                                        <textarea class="input-glass" v-model="description" rows="3" placeholder="Briefly describe your company..."></textarea>
+                                    </div>
+                                </div>
+                            </transition>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn-aurora w-100 py-3">
+                                    Create Account <i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+
+                            <div class="d-block d-lg-none text-center mt-4 pt-4 border-top" style="border-color: var(--glass-border-soft) !important;">
+                                <p class="text-dim mb-2">Already have an account?</p>
+                                <a href="/login" class="text-aurora fw-bold text-decoration-none" style="color: var(--aurora-1);">Sign in here</a>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        {% endraw %}
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="/static/js/signup.js"></script>
+
+</body>
+</html>

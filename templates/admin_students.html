@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Students | Aurora Placement Portal</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/dashboard-theme.css">
+</head>
+<body class="app-shell">
+
+<div id="app">
+    {% raw %}
+    <aside class="app-sidebar">
+        <div class="sidebar-brand"><i class="fas fa-bolt"></i></div>
+        <nav class="sidebar-nav">
+            <a class="sidebar-link" href="/admin_dashboard"><i class="fas fa-home"></i><span>Dashboard</span></a>
+            <a class="sidebar-link" href="/admin_all_drives"><i class="fas fa-briefcase"></i><span>All Drives</span></a>
+            <a class="sidebar-link active" href="/admin_students"><i class="fas fa-users"></i><span>Students</span></a>
+            <a class="sidebar-link" href="/admin_companies"><i class="fas fa-building"></i><span>Companies</span></a>
+        </nav>
+        <div class="sidebar-foot">
+            <a href="/login" class="sidebar-link"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
+        </div>
+    </aside>
+
+    <main class="app-main">
+        <header class="app-topbar">
+            <div>
+                <span class="topbar-eyebrow">Management</span>
+                <h1 class="topbar-title">Registered Students</h1>
+            </div>
+            <div class="d-flex align-items-center gap-4">
+                <div class="search-glass-wrap">
+                    <i class="fas fa-search search-ico"></i>
+                    <input type="text" placeholder="Search students..." v-model="searchQuery">
+                </div>
+                <div class="profile-chip"><div class="profile-avatar">A</div></div>
+            </div>
+        </header>
+
+        <div class="glass-card">
+            <div class="glass-card-header"><h5 class="section-title">Student Directory</h5></div>
+            <div class="glass-card-body">
+                <div class="table-responsive">
+                    <table class="glass-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Department</th>
+                                <th>CGPA</th>
+                                <th>Status</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="stu in filteredStudents" :key="stu.id">
+                                <td class="cell-strong">
+                                    <i class="fas fa-user-circle me-2 text-aurora"></i>{{ stu.name }}
+                                </td>
+                                <td class="text-dim">{{ stu.department }}</td>
+                                <td class="font-mono text-faint">{{ stu.cgpa }}</td>
+                                <td>
+                                    <span class="chip-glass" :class="stu.is_active ? 'is-success' : 'is-danger'">
+                                        {{ stu.is_active ? 'Active' : 'Blacklisted' }}
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <button v-if="stu.is_active" class="btn-glass is-danger" @click="toggleStatus(stu.id, 'blacklist')">Blacklist</button>
+                                    <button v-else class="btn-glass is-success" @click="toggleStatus(stu.id, 'activate')">Activate</button>
+                                </td>
+                            </tr>
+                            <tr v-if="filteredStudents.length === 0">
+                                <td colspan="5"><div class="empty-state-glass">No students found.</div></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+    {% endraw %}
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+const { createApp } = Vue;
+createApp({
+    data() { return { students: [], searchQuery: "" }; },
+    computed: {
+        filteredStudents() {
+            if (!this.searchQuery) return this.students;
+            const q = this.searchQuery.toLowerCase();
+            return this.students.filter(s => s.name.toLowerCase().includes(q) || s.department.toLowerCase().includes(q));
+        }
+    },
+    mounted() { this.fetchStudents(); },
+    methods: {
+        getHeaders() {
+            const token = localStorage.getItem("access_token");
+            if (!token) window.location.href = "/login";
+            return { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
+        },
+        async fetchStudents() {
+            try {
+                const res = await fetch("/api/admin/all_students", { headers: this.getHeaders() });
+                if (res.ok) this.students = await res.json();
+            } catch (err) { console.error(err); }
+        },
+        async toggleStatus(id, action) {
+            if (confirm(`Are you sure you want to ${action} this user?`)) {
+                await fetch(`/api/admin/${action}/${id}`, { method: "POST", headers: this.getHeaders() });
+                this.fetchStudents();
+            }
+        }
+    }
+}).mount("#app");
+</script>
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application History | Aurora Placement Portal</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="/static/css/dashboard-theme.css">
+
+    <style>
+        .pagination-glass .page-link {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--glass-border);
+            color: var(--ink-dim);
+            transition: all 0.3s;
+        }
+        .pagination-glass .page-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: var(--ink);
+        }
+        .pagination-glass .page-item.active .page-link {
+            background: var(--aurora-gradient);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 4px 12px var(--aurora-glow);
+        }
+        .pagination-glass .page-item.disabled .page-link {
+            background: transparent;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body class="app-shell">
+
+<div id="app">
+    {% raw %}
+    <aside class="app-sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <nav class="sidebar-nav">
+            <a class="sidebar-link" href="/student_dashboard">
+                <i class="fas fa-home"></i><span>Dashboard</span>
+            </a>
+            <a class="sidebar-link" href="/student_profile">
+                <i class="fas fa-user-edit"></i><span>Profile</span>
+            </a>
+            <a class="sidebar-link active" href="#">
+                <i class="fas fa-history"></i><span>History</span>
+            </a>
+        </nav>
+        <div class="sidebar-foot">
+            <a href="/login" class="sidebar-link">
+                <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <main class="app-main">
+        
+        <header class="app-topbar">
+            <div>
+                <span class="topbar-eyebrow">Track Your Progress</span>
+                <h1 class="topbar-title">Application History</h1>
+            </div>
+            
+            <div class="d-flex align-items-center gap-4">
+                <div class="profile-chip">
+                    <div class="profile-avatar">{{ studentName.charAt(0) }}</div>
+                </div>
+            </div>
+        </header>
+
+        <div v-if="loading" class="loading-glass">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Retrieving your timeline...</p>
+        </div>
+
+        <div v-else class="row">
+            <div class="col-12">
+                
+                <div class="glass-card">
+                    <div class="glass-card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="profile-avatar" style="width: 50px; height: 50px; font-size: 1.5rem; box-shadow: none;">
+                                {{ studentName.charAt(0) }}
+                            </div>
+                            <div>
+                                <h5 class="mb-0 text-white font-display">{{ studentName }}</h5>
+                                <div class="font-mono text-faint" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+                                    DEPT: <span class="text-aurora" style="color: var(--aurora-1);">{{ department }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-3">
+                            <a href="/student_dashboard" class="btn-outline-glass">
+                                <i class="fas fa-arrow-left me-2"></i> Dashboard
+                            </a>
+                            <button class="btn-aurora" @click="exportHistory" :disabled="exporting">
+                                <i class="fas fa-file-csv me-2" v-if="!exporting"></i>
+                                <i class="fas fa-spinner fa-spin me-2" v-else></i>
+                                {{ exporting ? 'Compiling Export...' : 'Export CSV' }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="glass-card-body">
+                        <div class="table-responsive">
+                            <table class="glass-table">
+                                <thead>
+                                    <tr>
+                                        <th>Drive ID</th>
+                                        <th>Company</th>
+                                        <th>Job Title</th>
+                                        <th>Mode</th>
+                                        <th>Status</th>
+                                        <th>Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(item, index) in historyList" :key="index">
+                                        <td class="font-mono text-faint">#{{ item.id }}</td>
+                                        
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold" 
+                                                     style="width: 28px; height: 28px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); font-size: 0.8rem; color: var(--ink);">
+                                                    {{ item.company.charAt(0) }}
+                                                </div>
+                                                <span class="cell-strong">{{ item.company }}</span>
+                                            </div>
+                                        </td>
+                                        
+                                        <td class="text-dim">{{ item.role }}</td>
+                                        
+                                        <td>
+                                            <span class="text-faint font-mono" style="font-size: 0.75rem;">
+                                                <i :class="item.mode === 'In-person' ? 'fas fa-users me-1' : 'fas fa-laptop me-1'"></i>
+                                                {{ item.mode }}
+                                            </span>
+                                        </td>
+                                        
+                                        <td>
+                                            <span class="chip-glass" :class="getStatusClass(item.status)">
+                                                {{ item.status }}
+                                            </span>
+                                        </td>
+                                        
+                                        <td class="text-faint" style="font-size: 0.85rem; max-width: 200px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" :title="item.remark">
+                                            {{ item.remark || '-' }}
+                                        </td>
+                                    </tr>
+
+                                    <tr v-if="historyList.length === 0">
+                                        <td colspan="6">
+                                            <div class="empty-state-glass py-5">
+                                                <i class="fas fa-folder-open mb-3 fs-2 text-aurora" style="opacity: 0.5;"></i>
+                                                <p>No applications found in your history yet.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div v-if="historyList.length > 0" class="p-4 border-top" style="border-color: var(--glass-border-soft) !important;">
+                        <nav aria-label="History navigation">
+                            <ul class="pagination pagination-glass justify-content-end mb-0">
+                                <li class="page-item disabled"><a class="page-link" href="#">Prev</a></li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </main>
+    {% endraw %}
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="/static/js/student_history.js"></script>
+
+</body>
+</html>
